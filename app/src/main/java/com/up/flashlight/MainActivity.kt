@@ -48,7 +48,10 @@ class MainActivity : ComponentActivity() {
 
         }
         viewModel.openLiveData.observeForever {
-            toggleFlash(it)
+            toggleFlash(it ?: false)
+            if (it == null) {
+                finish()
+            }
             if (it.not()) {
                 viewModel.delayTime = 0
             }

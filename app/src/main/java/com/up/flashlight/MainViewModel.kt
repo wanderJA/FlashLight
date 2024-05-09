@@ -29,7 +29,7 @@ class MainViewModel : ViewModel() {
 //                delay(delayTime * 60 * 1000)
             delay(delayTime * 100)
             withContext(Dispatchers.Main) {
-                openLiveData.value = false
+                openLiveData.value = null
             }
         }
     }
