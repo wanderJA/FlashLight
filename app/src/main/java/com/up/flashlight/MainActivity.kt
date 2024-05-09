@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel
 ) {
     var sliderPosition by remember { mutableStateOf(60) }
     var open by remember { mutableStateOf(viewModel.openLiveData.value ?: false) }
