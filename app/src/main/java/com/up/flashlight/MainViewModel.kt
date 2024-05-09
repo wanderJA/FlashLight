@@ -26,8 +26,8 @@ class MainViewModel : ViewModel() {
     fun startDelay() {
         job?.cancel()
         job = GlobalScope.launch {
-//                delay(delayTime * 60 * 1000)
-            delay(delayTime * 100)
+                delay(delayTime * 60 * 1000)
+//            delay(delayTime * 100)
             withContext(Dispatchers.Main) {
                 openLiveData.value = null
             }
