@@ -1,5 +1,6 @@
 package com.up.flashlight
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
@@ -19,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,23 +38,28 @@ private val TAG = "MainActivity"
 class MainActivity : ComponentActivity() {
     private val cameraPermission = android.Manifest.permission.CAMERA
     private val viewModel: MainViewModel by viewModels()
+    private var lightOpen = mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             FlashLightTheme {
-                Greeting(viewModel = viewModel)
+                Greeting(viewModel = viewModel, lightOpen = lightOpen) {
+                    startActivity(Intent(this, SnapshotActivity::class.java))
+                }
             }
         }
         checkCameraPermission {
 
         }
-        viewModel.openLiveData.observeForever {
+        viewModel.delayLiveData.observeForever {
             toggleFlash(it ?: false)
             if (it == null) {
                 finish()
             }
             if (it.not()) {
+                lightOpen.value = false
                 viewModel.delayTime = 0
             }
         }
@@ -89,11 +96,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel
+    viewModel: MainViewModel, lightOpen: MutableState<Boolean>,
+    onClick: () -> Unit,
 ) {
     var sliderPosition by remember { mutableStateOf(60) }
-    var open by remember { mutableStateOf(viewModel.openLiveData.value ?: false) }
-    open = viewModel.delayTime != 0L
     Log.d(TAG, "Greeting:${viewModel.delayTime}")
     Column(
         Modifier
@@ -110,30 +116,43 @@ fun Greeting(
                 sliderPosition = it.toInt()
             },
             modifier = Modifier.padding(horizontal = 30.dp),
-            enabled = open.not(),
+            enabled = lightOpen.value.not(),
             valueRange = 0f..120f,
             steps = 11
         )
         Spacer(modifier = Modifier.height(20.dp))
         Button({
-            open = open.not()
-            if (open) {
+            lightOpen.value = lightOpen.value.not()
+            if (lightOpen.value) {
                 viewModel.delayTime = sliderPosition.toLong()
                 viewModel.startDelay()
             }
-            viewModel.openLiveData.value = open
+            viewModel.delayLiveData.value = lightOpen.value
         }) {
             Text(
-                text = if (viewModel.openState.value == true) {
+                text = if (lightOpen.value) {
                     "关闭"
                 } else {
                     "打开"
                 },
                 modifier = modifier
-            ).also { Log.d(TAG, "Greeting: text :$open") }
+            ).also { Log.d(TAG, "Greeting: text :$lightOpen") }
         }
 
         Text(text = "open:${viewModel.openState.value}")
+
+        jumpLearn(onClick)
+    }
+}
+
+
+@Composable
+fun jumpLearn(onClick: () -> Unit) {
+    Spacer(modifier = Modifier.height(40.dp))
+    Button(onClick) {
+        Text(
+            "跳转"
+        )
     }
 }
 
@@ -142,6 +161,10 @@ fun Greeting(
 @Composable
 fun GreetingPreview() {
     FlashLightTheme {
-        Greeting(viewModel = MainViewModel())
+        Greeting(viewModel = MainViewModel(), lightOpen = remember {
+            mutableStateOf(false)
+        }) {
+
+        }
     }
 }

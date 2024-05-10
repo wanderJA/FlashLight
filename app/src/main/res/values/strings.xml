@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FlashLight</string>
+    <string name="title_activity_snapshot">SnapshotActivity</string>
 </resources>

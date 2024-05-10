@@ -20,8 +20,8 @@ import kotlinx.coroutines.withContext
 class MainViewModel : ViewModel() {
     var delayTime: Long = 0L
     private var job: Job? = null
-    val openLiveData: MutableLiveData<Boolean> = MutableLiveData(false)
-    val openState: LiveData<Boolean> = openLiveData
+    val delayLiveData: MutableLiveData<Boolean> = MutableLiveData(false)
+    val openState: LiveData<Boolean> = delayLiveData
 
     fun startDelay() {
         job?.cancel()
@@ -29,7 +29,7 @@ class MainViewModel : ViewModel() {
                 delay(delayTime * 60 * 1000)
 //            delay(delayTime * 100)
             withContext(Dispatchers.Main) {
-                openLiveData.value = null
+                delayLiveData.value = false
             }
         }
     }
